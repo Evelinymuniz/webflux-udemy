@@ -1,0 +1,4 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb+srv://admin:<password>@webfluxcourse.31qncjh.mongodb.net/webflux-course?retryWrites=true&w=majority
