@@ -1,5 +1,7 @@
 package br.com.udemy.webfluxudemy.controller;
 
+import br.com.udemy.webfluxudemy.model.request.UserRequest;
+import br.com.udemy.webfluxudemy.model.response.UserResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
