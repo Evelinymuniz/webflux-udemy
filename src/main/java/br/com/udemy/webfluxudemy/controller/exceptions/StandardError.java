@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Builder
 @Data
-public class StandarError implements Serializable {
+public class StandardError implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     private LocalDateTime timestamp;
