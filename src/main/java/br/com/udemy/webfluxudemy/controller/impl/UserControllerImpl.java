@@ -1,6 +1,7 @@
 package br.com.udemy.webfluxudemy.controller.impl;
 
 import br.com.udemy.webfluxudemy.controller.UserController;
+import br.com.udemy.webfluxudemy.mapper.UserMapper;
 import br.com.udemy.webfluxudemy.model.request.UserRequest;
 import br.com.udemy.webfluxudemy.model.response.UserResponse;
 import br.com.udemy.webfluxudemy.repository.UserRepository;
@@ -19,6 +20,8 @@ import reactor.core.publisher.Mono;
 public class UserControllerImpl implements UserController {
 
     private final UserService service;
+    private final UserMapper mapper;
+
 
     @Override
     public ResponseEntity<Mono<Void>> save(final UserRequest request) {
@@ -27,8 +30,9 @@ public class UserControllerImpl implements UserController {
     }
 
     @Override
-    public ResponseEntity<Mono<UserResponse>> find(String id) {
-        return null;
+    public ResponseEntity<Mono<UserResponse>> findById(String id) {
+        return ResponseEntity.ok().body(service.findById(id).map(obj -> mapper.toResponse(obj)));
+        //.map(mapper::toResponse)
     }
 
     @Override
