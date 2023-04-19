@@ -8,6 +8,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface UserController {
+
     @PostMapping
     ResponseEntity<Mono<Void>> save(@RequestBody UserRequest request);
 
