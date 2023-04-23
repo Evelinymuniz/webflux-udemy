@@ -4,6 +4,8 @@ import br.com.udemy.webfluxudemy.entity.User;
 import br.com.udemy.webfluxudemy.mapper.UserMapper;
 import br.com.udemy.webfluxudemy.model.request.UserRequest;
 import br.com.udemy.webfluxudemy.repository.UserRepository;
+import br.com.udemy.webfluxudemy.service.exception.ObjectNotFoundException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -16,6 +18,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import static java.lang.String.format;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
@@ -86,6 +90,35 @@ class UserServiceTest {
                 .expectComplete()
                 .verify();
         Mockito.verify(repository, times(1)).save(any(User.class));
+    }
+
+    @Test
+    void testDelete(){
+        User entity = User.builder().build();
+        when(repository.findAndRemove(anyString())).thenReturn(Mono.just(entity));
+
+        Mono<User> result = service.delete("123");
+
+        StepVerifier.create(result)
+                .expectNextMatches(user -> user.getClass() == User.class)
+                .expectComplete()
+                .verify();
+
+        Mockito.verify(repository, times(1)).findAndRemove(anyString());
+    }
+
+    @Test
+    void testHandleNotFound(){
+        when(repository.findById(anyString())).thenReturn(Mono.empty());
+
+        try{
+            service.findById("123").block();
+        }catch (Exception ex){
+           assertEquals(ObjectNotFoundException.class, ex.getClass());
+           assertEquals(format("Object not found. Id: %s, Type: %s", "123", User.class.getSimpleName()),
+                   ex.getMessage());
+        }
+
     }
 
     }
