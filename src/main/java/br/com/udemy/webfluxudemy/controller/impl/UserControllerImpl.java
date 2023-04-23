@@ -4,7 +4,7 @@ import br.com.udemy.webfluxudemy.controller.UserController;
 import br.com.udemy.webfluxudemy.mapper.UserMapper;
 import br.com.udemy.webfluxudemy.model.request.UserRequest;
 import br.com.udemy.webfluxudemy.model.response.UserResponse;
-import br.com.udemy.webfluxudemy.repository.UserRepository;
+
 import br.com.udemy.webfluxudemy.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
