@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -32,13 +33,14 @@ class UserControllerImplTest {
     private WebTestClient webTestClient;
     @MockBean
     private UserService service;
-    @MockBean
+   /* @MockBean
     private UserMapper mapper;
     @MockBean
-    private MongoClient mongoClient;
+    private MongoClient mongoClient;// conexao*/
     @Test
     @DisplayName("Test endpoint save with success") //
     void testSaveWithSuccess() {
+
         UserRequest request = new UserRequest("Eveliny", "eveliny01@gmail.com","123");
         Mockito.when(service.save(any(UserRequest.class))).thenReturn(Mono.just(User.builder().build()));
 
@@ -47,6 +49,26 @@ class UserControllerImplTest {
                 .body(BodyInserters.fromValue(request))
                 .exchange().expectStatus().isCreated();
         Mockito.verify(service, times(1)).save(any(UserRequest.class));
+    }
+    @Test
+    @DisplayName("Test endpoint save with bad request")
+    void testSaveWithBadRequest() {
+
+        UserRequest request = new UserRequest(" Eveliny", "eveliny01@gmail.com","123");
+
+        webTestClient.post().uri("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(request))
+                .exchange().expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.path").isEqualTo("/users")
+                .jsonPath("$.status").isEqualTo(HttpStatus.BAD_REQUEST.value())
+                .jsonPath("$.error").isEqualTo("validation error")
+                .jsonPath("$.message").isEqualTo(" Error on validation attributes")
+                .jsonPath("$.errors[0].fieldName").isEqualTo("name")
+                .jsonPath("$.errors[0].message").isEqualTo("field connot have blank spaces at the beginning or at end");
+
+
     }
 
     @Test
