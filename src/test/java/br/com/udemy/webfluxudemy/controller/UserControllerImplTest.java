@@ -3,6 +3,7 @@ package br.com.udemy.webfluxudemy.controller;
 import br.com.udemy.webfluxudemy.entity.User;
 import br.com.udemy.webfluxudemy.mapper.UserMapper;
 import br.com.udemy.webfluxudemy.model.request.UserRequest;
+import br.com.udemy.webfluxudemy.model.response.UserResponse;
 import br.com.udemy.webfluxudemy.service.UserService;
 import com.mongodb.reactivestreams.client.MongoClient;
 import org.junit.jupiter.api.DisplayName;
@@ -23,7 +24,10 @@ import reactor.core.publisher.Mono;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -33,10 +37,10 @@ class UserControllerImplTest {
     private WebTestClient webTestClient;
     @MockBean
     private UserService service;
-   /* @MockBean
+    @MockBean
     private UserMapper mapper;
     @MockBean
-    private MongoClient mongoClient;// conexao*/
+    private MongoClient mongoClient;// conexao
     @Test
     @DisplayName("Test endpoint save with success") //
     void testSaveWithSuccess() {
@@ -45,7 +49,7 @@ class UserControllerImplTest {
         Mockito.when(service.save(any(UserRequest.class))).thenReturn(Mono.just(User.builder().build()));
 
         webTestClient.post().uri("/users")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(APPLICATION_JSON)
                 .body(BodyInserters.fromValue(request))
                 .exchange().expectStatus().isCreated();
         Mockito.verify(service, times(1)).save(any(UserRequest.class));
@@ -57,7 +61,7 @@ class UserControllerImplTest {
         UserRequest request = new UserRequest(" Eveliny", "eveliny01@gmail.com","123");
 
         webTestClient.post().uri("/users")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(APPLICATION_JSON)
                 .body(BodyInserters.fromValue(request))
                 .exchange().expectStatus().isBadRequest()
                 .expectBody()
@@ -72,7 +76,25 @@ class UserControllerImplTest {
     }
 
     @Test
-    void findById() {
+    @DisplayName("Test find by id endpoint with success")
+    void testfindByIdWithSuccess() {
+        final var id = "123456";
+        final var userResponse = new UserResponse(id,"Eveliny", "eveliny01@gmail.com","123");
+
+        when(service.findById(anyString())).thenReturn(Mono.just(User.builder().build()));
+        when(mapper.toResponse(any(User.class))).thenReturn(userResponse);
+
+        webTestClient.get().uri("/users/"+ id)
+                .accept(APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.id").isEqualTo(id)
+                .jsonPath("$.name").isEqualTo("Eveliny")
+                .jsonPath("$.email").isEqualTo("eveliny01@gmail.com")
+                .jsonPath("$.password").isEqualTo("123");
+
+
     }
 
     @Test
