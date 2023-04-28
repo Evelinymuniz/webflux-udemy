@@ -162,7 +162,7 @@ class UserControllerImplTest {
         webTestClient.delete().uri("/users/" + ID)
                     .exchange().expectStatus().isOk();
 
-        verify(service.delete(anyString()));
+        verify(service).delete(anyString());
 
     }
 }
