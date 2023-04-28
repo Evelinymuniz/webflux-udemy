@@ -26,8 +26,7 @@ import reactor.core.publisher.Mono;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
@@ -58,7 +57,7 @@ class UserControllerImplTest {
                 .contentType(APPLICATION_JSON)
                 .body(BodyInserters.fromValue(request))
                 .exchange().expectStatus().isCreated();
-        Mockito.verify(service, times(1)).save(any(UserRequest.class));
+        verify(service, times(1)).save(any(UserRequest.class));
     }
     @Test
     @DisplayName("Test endpoint save with bad request")
@@ -100,41 +99,9 @@ class UserControllerImplTest {
                 .jsonPath("$.email").isEqualTo(EMAIL)
                 .jsonPath("$.password").isEqualTo(PASSWORD);
 
-
+        verify(service).findById(anyString());
+        verify(mapper).toResponse(any(User.class));
     }
-    /*@Test
-    @DisplayName("Test endpoint findById with bad request")
-    void testfindByIdWithBadRequest() {
-
-        final var userResponse = new UserResponse(ID.concat(" "), NAME, EMAIL, PASSWORD);
-
-        when(service.findById(anyString())).thenReturn(Mono.just(User.builder().build()));
-        when(mapper.toResponse(any(User.class))).thenReturn(userResponse);
-
-        webTestClient.get().uri("/users/"+ "123456")
-                .accept(APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isNotFound()
-                .expectBody()
-                .jsonPath("$.id").isEqualTo(ID)
-                .jsonPath("$.name").isEqualTo(NAME)
-                .jsonPath("$.email").isEqualTo(EMAIL)
-                .jsonPath("$.password").isEqualTo(PASSWORD);
-
-*/
-        /*final var userResponse = new UserResponse(ID.concat(""), NAME, EMAIL, PASSWORD);
-
-        webTestClient.get().uri("/users/"+ ID)
-                .accept(APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isNotFound()
-                .expectBody()
-                .jsonPath("$.path").isEqualTo("/users/1234560")
-                .jsonPath("$.status").isEqualTo(NOT_FOUND.value())
-                .jsonPath("$.error").isEqualTo("/users/1234560")
-                .jsonPath("$.message").isEqualTo("Object not found. Id: 123456 , Type: User");
-*/
-
 
 
     @Test
@@ -156,13 +123,37 @@ class UserControllerImplTest {
                 .jsonPath("$.[0].email").isEqualTo(EMAIL)
                 .jsonPath("$.[0].password").isEqualTo(PASSWORD);
 
+        verify(service).findAll();
+        verify(mapper).toResponse(any(User.class));
     }
 
     @Test
+    @DisplayName("Test endpoint update with with success")
     void update() {
+
+        final var userResponse = new UserResponse(ID, NAME, EMAIL, PASSWORD);
+        UserRequest request = new UserRequest(NAME, EMAIL,PASSWORD);
+
+        when(service.update(anyString(), any(UserRequest.class)))
+                .thenReturn(Mono.just(User.builder().build()));
+        when(mapper.toResponse(any(User.class))).thenReturn(userResponse);
+
+        webTestClient.patch().uri("/users/" + ID)
+                .contentType(APPLICATION_JSON)
+                .body(BodyInserters.fromValue(request))
+                .exchange().expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.id").isEqualTo(ID)
+                .jsonPath("$.name").isEqualTo(NAME)
+                .jsonPath("$.email").isEqualTo(EMAIL)
+                .jsonPath("$.password").isEqualTo(PASSWORD);
+
+        verify(service).update(anyString(),any(UserRequest.class));
+        verify(mapper).toResponse(any(User.class));
     }
 
     @Test
     void delete() {
+
     }
 }
