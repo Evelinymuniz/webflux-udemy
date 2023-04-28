@@ -129,7 +129,7 @@ class UserControllerImplTest {
 
     @Test
     @DisplayName("Test endpoint update with with success")
-    void update() {
+    void testUpdateWithSuccess() {
 
         final var userResponse = new UserResponse(ID, NAME, EMAIL, PASSWORD);
         UserRequest request = new UserRequest(NAME, EMAIL,PASSWORD);
@@ -153,7 +153,16 @@ class UserControllerImplTest {
     }
 
     @Test
-    void delete() {
+    @DisplayName("Test endpoint delete with with success")
+    void testDeleteWithSuccess() {
+
+        when(service.delete(anyString()))
+                .thenReturn(Mono.just(User.builder().build()));
+
+        webTestClient.delete().uri("/users/" + ID)
+                    .exchange().expectStatus().isOk();
+
+        verify(service.delete(anyString()));
 
     }
 }
